@@ -11,7 +11,6 @@ def relu_activation(X):
 
 def relu_deriative(X):
     return 1. * (X > 0)
-
 def forward_prop(x, y, params):
     W1, b1, W2, b2 = [params[key] for key in ('W1', 'b1', 'W2', 'b2')]
     z1 = np.dot(W1, x.reshape(784, 1)) + b1
@@ -24,11 +23,14 @@ def forward_prop(x, y, params):
         ret[key] = params[key]
     return ret
 if __name__ == "__main__":
+    input_size = 784
+    h_rows_size = 50
+    num_of_classes = 10
     # Initialize random parameters and inputs
-    W1 = np.random.rand(2, 2)
-    b1 = np.random.rand(2, 1)
-    W2 = np.random.rand(1, 2)
-    b2 = np.random.rand(1, 1)
+    W1 = np.random.uniform(-0.08, 0.08,[h_rows_size,input_size])
+    b1 = np.random.rand(h_rows_size,1)
+    W2 = np.random.rand(-0.08, 0.08,[num_of_classes,input_size])
+    b2 = np.random.rand(num_of_classes, 1)
     params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
     #load the text file with the data
     x_train = np.loadtxt("train_x", max_rows=1)
