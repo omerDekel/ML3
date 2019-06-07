@@ -22,6 +22,14 @@ def softmax_derivative(X):
   #  return dx
                  """""
 
+def training(etha, train_x, train_y,ep_num,params):
+    for i in range(ep_num):
+        sum = 0.0
+        for cur_x,cur_y in zip(train_x,train_y):
+            forward_ret = forward_prop(cur_y,cur_x,params)
+            sum+= forward_ret['loss']
+        loss_avg = sum / train_x.shape[0]
+        print(loss_avg)
 
 def relu_activation(X):
     return np.maximum(X, 0)
@@ -35,7 +43,7 @@ def forward_prop(x, y, params):
     h1 = relu_activation(z1)
     z2 = np.dot(W2, h1) + b2
     h2 = softmax(z2)
-    loss = -np.log(h2[np.argmax(y)])
+    loss = -np.log(h2[int(y)])
     ret = {'x': x, 'y': y, 'z1': z1, 'h1': h1, 'z2': z2, 'h2': h2, 'loss': loss}
     for key in params:
         ret[key] = params[key]
@@ -78,8 +86,9 @@ if __name__ == "__main__":
     params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
     epoch = 10
     #load the text file with the data
-    x_train = np.loadtxt("train_x", max_rows=1)
-    y_train = np.loadtxt("train_y", max_rows=1)
+    x_train = np.loadtxt("train_x", max_rows=255)/255.0
+    y_train = np.loadtxt("train_y", max_rows=255)
     test_x = np.loadtxt("test_x")
+    training(0.01, x_train, y_train, 10, params)
 
 
