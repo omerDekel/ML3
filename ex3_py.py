@@ -35,7 +35,7 @@ def training(etha, train_x, train_y,ep_num,params,dev_x,dev_y):
             sum+= forward_ret['loss']
             params = update_param(forward_ret, back_ret, etha)
         loss_avg = sum / train_x.shape[0]
-        print(loss_avg)
+        print("loss avg ",loss_avg)
         predict_on_dev(params,dev_x,dev_y)
 
     return params
@@ -51,7 +51,7 @@ def predict_on_dev(params, dev_x, dev_y):
         good += 1
  acc = good / dev_x.shape[0] # how many times we were correct / # of examples
  avg_loss = sum_loss / dev_x.shape[0] # avg. loss
- print(avg_loss, acc)
+ print("avg loss, acc",avg_loss, acc)
  #return avg_loss, acc
 
 
@@ -59,7 +59,7 @@ def testing(test_x, params):
     f = open("test_y", "w")
     for x in test_x:
         out = forward(params, x)
-        f.write(str(out.argmax()))
+        f.write(str(out.argmax())+'\n')
     f.close()
 
 def forward(params,x):
@@ -103,7 +103,9 @@ def forward_prop(x, y, params):
 def back_prop(fprop_cache):
   # Follows procedure given in notes
   x, y, z1, h1, z2, h2, loss = [fprop_cache[key] for key in ('x', 'y', 'z1', 'h1', 'z2', 'h2', 'loss')]
-  vec_y = np.array([0]*10)
+  # vec_y = np.array([0]*10)
+  # vec_y[int(y)] = 1
+  vec_y = np.reshape(np.zeros(10), (10, 1))
   vec_y[int(y)] = 1
   dz2 = (h2 - vec_y)                                #  dL/dz2
 
@@ -112,7 +114,7 @@ def back_prop(fprop_cache):
   db2 = dz2                                     #  dL/dz2 * dz2/db2 =  dL/dz2
   dz1 = np.dot(fprop_cache['W2'].T, (h2 - vec_y)) * relu_deriative(z1) #  dL/dz2 * dz2/dh1 * dh1/dz1
 
-  dW1 = np.dot(dz1, x.T)                        #  dL/dz2 * dz2/dh1 * dh1/dz1 * dz1/dw1
+  dW1 = np.dot(dz1, x.T.reshape(1, 784))                        #  dL/dz2 * dz2/dh1 * dh1/dz1 * dz1/dw1
   db1 = dz1                                     #  dL/dz2 * dz2/dh1 * dh1/dz1 * dz1/db1
   return {'b1': db1, 'W1': dW1, 'b2': db2, 'W2': dW2}
 
@@ -144,8 +146,8 @@ if __name__ == "__main__":
     params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
     epoch = 10
     #load the text file with the data
-    x_train = np.loadtxt("train_x", max_rows=255)/255.0
-    y_train = np.loadtxt("train_y", max_rows=255)
+    x_train = np.loadtxt("train_x", max_rows=5000)/255.0
+    y_train = np.loadtxt("train_y", max_rows=5000)
     test_x = np.loadtxt("test_x")
 
     dev_size = (int)(x_train.shape[0]*0.2)
