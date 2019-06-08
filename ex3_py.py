@@ -148,13 +148,16 @@ if __name__ == "__main__":
     #load the text file with the data
     x_train = np.loadtxt("train_x", max_rows=5000)/255.0
     y_train = np.loadtxt("train_y", max_rows=5000)
-    test_x = np.loadtxt("test_x")
-
+    test_x = np.loadtxt("test_x")/255.0
+    rnd = np.arange(x_train.shape[0])
+    np.random.shuffle(rnd)
+    x_train = x_train[rnd]
+    y_train = y_train[rnd]
     dev_size = (int)(x_train.shape[0]*0.2)
     dev_x,dev_y = x_train[-dev_size:, :], y_train[-dev_size:]
-    x_train, y_train = x_train[:dev_size,:], y_train[:-dev_size]
+    x_train, y_train = x_train[:-dev_size,:], y_train[:-dev_size]
 
-    params = training(0.01, x_train, y_train, 10, params, dev_x, dev_y)
+    params = training(0.01, x_train, y_train, 15, params, dev_x, dev_y)
     testing(test_x,params)
 
 
