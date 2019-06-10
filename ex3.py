@@ -2,8 +2,6 @@ import numpy as np
 
 
 def softmax(X):
-    # max_x = np.max(X)
-    # return np.exp(X - max_x) / (np.exp(X - max_x)).sum()
     expX = np.exp(X)
     return expX / expX.sum()
 
@@ -32,23 +30,24 @@ def training(etha, train_x, train_y,ep_num,params,dev_x,dev_y):
             back_ret = back_prop(forward_ret)
             sum+= forward_ret['loss']
             params = update_param(forward_ret, back_ret, etha)
-        loss_avg = sum / train_x.shape[0]
-        print("loss avg ",loss_avg)
+        # loss_avg = sum / train_x.shape[0]
+        # print("loss avg ",loss_avg)
         validate(params,dev_x,dev_y)
 
     return params
 
 
 def validate(params, validation_x, validation_y):
- loss_summing =  0.0
- sum_succ = 0.0
+ #loss_summing =  0.0
+ mistake_sum = 0.0
  for x, y in zip(validation_x, validation_y):
     out = forward_prop(x, y, params)
-    loss = out['loss']
-    loss_summing += loss
-    if y == out['h2'].argmax():
-        sum_succ += 1
- print(" loss average , succes",loss_summing / validation_y.shape[0], sum_succ / validation_x.shape[0] )
+    #loss = out['loss']
+    #loss_summing += loss
+    if y != out['h2'].argmax():
+        mistake_sum += 1
+ print("mistake averrage", mistake_sum / validation_x.shape[0] )
+ #print("averge loss",loss_summing / validation_x.shape[0] )
  #return avg_loss, acc
 
 
@@ -153,7 +152,6 @@ if __name__ == "__main__":
     W2 = np.random.uniform(-0.08, 0.08, [num_of_classes, h_rows_size])
     b2 = np.random.rand(num_of_classes, 1)
     params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
-    epoch = 10
     # loading
     x_train = np.loadtxt("train_x", max_rows=5000)/255.0
     y_train = np.loadtxt("train_y", max_rows=5000)
@@ -161,9 +159,9 @@ if __name__ == "__main__":
     num_lines = x_train.shape[0]
     # shuffle train
     shuffling_x_y(x_train,y_train,np.arange(num_lines))
-
     t_size = (int)(num_lines*0.8)
     x_train, y_train,validset_x,validset_y = spilt_train(x_train,y_train,t_size)
+    epoch = 10
     params = training(0.01, x_train, y_train, epoch, params, validset_x, validset_y)
     testing(test_x,params)
 
