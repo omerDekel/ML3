@@ -46,7 +46,7 @@ def validate(params, validation_x, validation_y):
     #loss_summing += loss
     if y != out['h2'].argmax():
         mistake_sum += 1
- print("mistake averrage", mistake_sum / validation_x.shape[0] )
+ print("succes averrage", 1-(mistake_sum / validation_x.shape[0]) )
  #print("averge loss",loss_summing / validation_x.shape[0] )
  #return avg_loss, acc
 
