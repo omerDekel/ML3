@@ -153,16 +153,16 @@ if __name__ == "__main__":
     b2 = np.random.rand(num_of_classes, 1)
     params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
     # loading
-    x_train = np.loadtxt("train_x", max_rows=5000)/255.0
-    y_train = np.loadtxt("train_y", max_rows=5000)
+    x_train = np.loadtxt("train_x")/255.0
+    y_train = np.loadtxt("train_y")
     test_x = np.loadtxt("test_x")/255.0
     num_lines = x_train.shape[0]
     # shuffle train
     shuffling_x_y(x_train,y_train,np.arange(num_lines))
     t_size = (int)(num_lines*0.8)
     x_train, y_train,validset_x,validset_y = spilt_train(x_train,y_train,t_size)
-    epoch = 10
-    params = training(0.01, x_train, y_train, epoch, params, validset_x, validset_y)
+    epoch = 15
+    params = training(0.05, x_train, y_train, epoch, params, validset_x, validset_y)
     testing(test_x,params)
 
 
