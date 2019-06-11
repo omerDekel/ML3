@@ -160,6 +160,7 @@ if __name__ == "__main__":
     x_train3 = np.loadtxt("train_x",skiprows=50000)/255.0
     y_train3 = np.loadtxt("train_y",skiprows=50000)
     test_x = np.loadtxt("test_x")/255.0
+    
     x_train = np.concatenate(x_train1,x_train2,x_train3)
     y_train = np.concatenate(y_train1,y_train2,y_train3)
     num_lines = x_train.shape[0]
