@@ -153,16 +153,22 @@ if __name__ == "__main__":
     b2 = np.random.rand(num_of_classes, 1)
     params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
     # loading
-    x_train = np.loadtxt("train_x")/255.0
-    y_train = np.loadtxt("train_y")
+    x_train1 = np.loadtxt("train_x",max_rows= 25000)/255.0
+    y_train1 = np.loadtxt("train_y",max_rows=25000)
+    x_train2 = np.loadtxt("train_x",skiprows=25000,max_rows=25000)/255.0
+    y_train2 = np.loadtxt("train_y",skiprows=25000,max_rows=25000)
+    x_train3 = np.loadtxt("train_x",skiprows=50000)/255.0
+    y_train3 = np.loadtxt("train_y",skiprows=50000)
     test_x = np.loadtxt("test_x")/255.0
+    x_train = np.concatenate(x_train1,x_train2,x_train3)
+    y_train = np.concatenate(y_train1,y_train2,y_train3)
     num_lines = x_train.shape[0]
     # shuffle train
     shuffling_x_y(x_train,y_train,np.arange(num_lines))
     t_size = (int)(num_lines*0.8)
     x_train, y_train,validset_x,validset_y = spilt_train(x_train,y_train,t_size)
-    epoch = 15
-    params = training(0.05, x_train, y_train, epoch, params, validset_x, validset_y)
+    epoch = 10
+    params = training(0.01, x_train, y_train, epoch, params, validset_x, validset_y)
     testing(test_x,params)
 
 
