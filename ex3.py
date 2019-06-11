@@ -1,34 +1,32 @@
 import numpy as np
 
-
 def softmax(X):
     expX = np.exp(X)
     return expX / expX.sum()
 
-
-def softmax_derivative(X):
-  """ x = softmax(X)
-    dx = np.zeros((len(x),len(x)))
-    for i in range(len(x)):
-        for j in range(len(x)):
-            if i == j:
-                dx[i,j] = x[i] * (1-x[i])
-            else:
-                 dx[i,j] = -x[i]*x[j]
-   # softmax(X)
-  #  return dx
-                 """""
-
 def training(etha, train_x, train_y,ep_num,params,dev_x,dev_y):
+    """
+    This function train over the data
+    :param etha:
+    :param train_x:
+    :param train_y:
+    :param ep_num:
+    :param params:
+    :param dev_x:
+    :param dev_y:
+    :return:
+    """
     lines_range = np.arange(train_x.shape[0])
+    #run the forward_prop for epoch num
     for i in range(ep_num):
         sum = 0.0
         #shuffle
         x_train,y_train = shuffling_x_y(train_x, train_y, lines_range)
+        #for eac example train
         for cur_x,cur_y in zip(x_train,y_train):
             forward_ret = forward_prop(cur_x,cur_y,params)
             back_ret = back_prop(forward_ret)
-            sum+= forward_ret['loss']
+            sum+= forward_ret['loss'] # for loss calculation
             params = update_param(forward_ret, back_ret, etha)
         # loss_avg = sum / train_x.shape[0]
         # print("loss avg ",loss_avg)
@@ -38,37 +36,54 @@ def training(etha, train_x, train_y,ep_num,params,dev_x,dev_y):
 
 
 def validate(params, validation_x, validation_y):
- #loss_summing =  0.0
- mistake_sum = 0.0
- for x, y in zip(validation_x, validation_y):
-    out = forward_prop(x, y, params)
-    #loss = out['loss']
-    #loss_summing += loss
-    if y != out['h2'].argmax():
-        mistake_sum += 1
- print("succes averrage", 1-(mistake_sum / validation_x.shape[0]) )
- #print("averge loss",loss_summing / validation_x.shape[0] )
- #return avg_loss, acc
-
+    """
+    Go over the validation set and check how accurate the model
+    :param params:
+    :param validation_x:
+    :param validation_y:
+    :return:
+    """
+    mistake_sum = 0.0
+    for x, y in zip(validation_x, validation_y):
+        out = forward_prop(x, y, params)
+        # loss = out['loss']
+        # loss_summing += loss
+        if y != out['h2'].argmax():
+            mistake_sum += 1
+    print("succes averrage", 1 - (mistake_sum / validation_x.shape[0]))
+    # print("averge loss",loss_summing / validation_x.shape[0] )
 
 def testing(test_x, params):
-    f = open("test_y", "w")
+    """
+    Run over test_x and wirte the classification in test_y file
+    :param test_x:
+    :param params:
+    :return:
+    """
+    file_test_y = open("test_y", "w")
     for x in test_x:
-        out = forward(params, x)
-        f.write(str(get_classification(out))+'\n')
-    f.close()
+        forward_ret = forward(params, x)
+        str_class = str(get_classification(forward_ret))
+        file_test_y.write(str_class+'\n')
+    file_test_y.close()
 
 def forward(params,x):
+    """
+    forward x in layers without loss calculation
+    :param params:
+    :param x:
+    :return:
+    """
     W1, b1, W2, b2 = [params[key] for key in ('W1', 'b1', 'W2', 'b2')]
-    z1 = np.dot(W1, x.reshape(784, 1)) + b1
+    x_reshped = x.reshape(784, 1)
+    z1 = np.dot(W1, x_reshped) + b1       #w1*x + b1
     h1 = relu_activation(z1)
     z2 = np.dot(W2, h1) + b2
-    h2 = softmax(z2)
-    return h2
+    return softmax(z2)
 
 def update_param(old_params, grad_params, eta):
     """
-
+    Update the  new wights
     :param old_params:
     :param grad_params:
     :param eta:
@@ -90,20 +105,20 @@ def relu_deriative(X):
     return 1. * (X > 0)
 
 def forward_prop(x, y, params):
+    #get the data needed
     W1, b1, W2, b2 = [params[key] for key in ('W1', 'b1', 'W2', 'b2')]
-
-    z1 = np.dot(W1, x.reshape(784, 1)) + b1
-    h1 = relu_activation(z1)
-    z2 = np.dot(W2, h1) + b2
-    h2 = softmax(z2)
-    loss = -np.log(h2[int(y)])
+    x_reshped = x.reshape(784, 1)
+    z1 = np.dot(W1, x_reshped) + b1       #w1*x + b1
+    h1 = relu_activation(z1)  # g(z1)
+    z2 = np.dot(W2, h1) + b2  # w2*h1 + b2
+    h2 = softmax(z2)  # g2=softmax(z2)
+    loss = -np.log(h2[int(y)]) #sum - ylog(h2) -> -log(h2[y])
     ret = {'x': x, 'y': y, 'z1': z1, 'h1': h1, 'z2': z2, 'h2': h2, 'loss': loss}
     for key in params:
         ret[key] = params[key]
     return ret
-
+#backpropogation
 def back_prop(fprop_cache):
-  # Follows procedure given in notes
   x, y, z1, h1, z2, h2, loss = [fprop_cache[key] for key in ('x', 'y', 'z1', 'h1', 'z2', 'h2', 'loss')]
   vec_y = convart_classificaion_one_hot(y,10)
   dz2 = (h2 - vec_y)                                #  dL/dz2
@@ -126,7 +141,8 @@ def spilt_train(x_train,y_train,t_size):
     return x_train, y_train,validset_x, validset_y
 def convart_classificaion_one_hot(classifications,size):
     """
-
+    Convart vector to one-hot mode
+    ie 3 -> 0 0 1 0 0 0
     :param classifications:
     :param size:
     :return:
@@ -134,8 +150,9 @@ def convart_classificaion_one_hot(classifications,size):
     vec_y = np.reshape(np.zeros(size), (size, 1))
     vec_y[int(classifications)] = 1
     return vec_y
-# shuffle train_x train_y accordingly
+# shuffle train_x train_y together
 def shuffling_x_y(x_tr,y_tr,range_of_lines):
+    #shuffle indices
     np.random.shuffle(range_of_lines)
     shuf_y= y_tr[range_of_lines]
     shuf_x = x_tr[range_of_lines]
@@ -152,24 +169,16 @@ if __name__ == "__main__":
     W2 = np.random.uniform(-0.08, 0.08, [num_of_classes, h_rows_size])
     b2 = np.random.rand(num_of_classes, 1)
     params = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
-    # loading
-    x_train1 = np.loadtxt("train_x",max_rows= 25000)/255.0
-    y_train1 = np.loadtxt("train_y",max_rows=25000)
-    x_train2 = np.loadtxt("train_x",skiprows=25000,max_rows=25000)/255.0
-    y_train2 = np.loadtxt("train_y",skiprows=25000,max_rows=25000)
-    x_train3 = np.loadtxt("train_x",skiprows=50000)/255.0
-    y_train3 = np.loadtxt("train_y",skiprows=50000)
+    # loading and normalizing
+    x_train = np.loadtxt("train_x",max_rows= 5000)/255.0
+    y_train = np.loadtxt("train_y",max_rows=5000)
     test_x = np.loadtxt("test_x")/255.0
-    
-    x_train = np.concatenate(x_train1,x_train2,x_train3)
-    y_train = np.concatenate(y_train1,y_train2,y_train3)
+
     num_lines = x_train.shape[0]
     # shuffle train
     shuffling_x_y(x_train,y_train,np.arange(num_lines))
     t_size = (int)(num_lines*0.8)
     x_train, y_train,validset_x,validset_y = spilt_train(x_train,y_train,t_size)
-    epoch = 10
+    epoch = 5
     params = training(0.01, x_train, y_train, epoch, params, validset_x, validset_y)
     testing(test_x,params)
-
-
